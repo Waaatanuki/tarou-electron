@@ -1,7 +1,8 @@
 import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, session, shell, WebContentsView } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
+import { createWebView } from './view'
 
 function createWindow(): void {
   // Create the browser window.
@@ -14,8 +15,6 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      webviewTag: true, // 必须启用
-      nodeIntegration: true, // 推荐启用
     },
   })
 
@@ -31,76 +30,13 @@ function createWindow(): void {
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env.ELECTRON_RENDERER_URL) {
-    console.log('loadFiledev')
-    console.log(process.env.ELECTRON_RENDERER_URL)
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
   }
   else {
-    console.log('loadFile')
-
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  const view = new WebContentsView()
-  mainWindow.contentView.addChildView(view)
-
-  const mobileUserAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1'
-  view.webContents.setUserAgent(mobileUserAgent)
-
-  view.webContents.loadURL('https://gbf.game.mbga.jp')
-  view.setBounds({ x: 0, y: 0, width: 500, height: 540 })
-
-  try {
-    view.webContents.debugger.attach('1.3')
-  }
-  catch (err) {
-    console.log('Debugger attach failed : ', err)
-  }
-
-  view.webContents.debugger.on('detach', (event, reason) => {
-    console.log('Debugger detached due to : ', reason)
-  })
-
-  async function getResponse(requestId: string, cb: (resp: any) => void) {
-    let count = 0
-    let resp: any
-
-    const go = setInterval(async () => {
-      if (count > 100) {
-        clearInterval(go)
-        return
-      }
-      if (resp) {
-        clearInterval(go)
-        try {
-          cb(JSON.parse(resp.body))
-        }
-        catch (error) {
-          console.log(error)
-        }
-        return
-      }
-      try {
-        count++
-        resp = await view.webContents.debugger.sendCommand('Network.getResponseBody', { requestId })
-      }
-      catch (error) {
-        console.log(error)
-      }
-    }, 100)
-  }
-
-  view.webContents.debugger.on('message', (event, method, params) => {
-    if (method === 'Network.responseReceived') {
-      if (params.response.url.includes('/weapon/list')) {
-        getResponse(params.requestId, (resp) => {
-          mainWindow.webContents.send('resp', resp)
-        })
-      }
-    }
-  })
-
-  view.webContents.debugger.sendCommand('Network.enable')
+  createWebView(mainWindow)
 }
 
 // This method will be called when Electron has finished
