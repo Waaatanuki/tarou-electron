@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import conf from '../conf'
 import Dashborad from './dashboard/index.vue'
 import Party from './party/index.vue'
 
 const appStore = useAppStore()
 const isDragging = ref(false)
 
-watch(() => appStore.viewSize.width, (newWidth) => {
+watch(() => appStore.config.webContentsView?.bounds.width, (newWidth) => {
   window.electron.ipcRenderer.send('resize-webcontents', newWidth)
 })
 
@@ -19,15 +20,18 @@ function stopDrag() {
   if (!isDragging.value)
     return
   isDragging.value = false
-  window.electron.ipcRenderer.send('save-viewSize', { width: appStore.viewSize.width, height: appStore.viewSize.height })
+  conf.set('webContentsView.bounds.width', appStore.config.webContentsView?.bounds.width)
+  conf.set('webContentsView.bounds.height', appStore.config.webContentsView?.bounds.height)
 }
 
 const onDrag = useThrottleFn((e: MouseEvent) => {
   if (isDragging.value) {
     const MIN_WIDTH = 150
     const MAX_WIDTH = 800
-    const newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, e.clientX))
-    appStore.viewSize.width = newWidth
+
+    const _clientX = e.clientX - (appStore.config.bookmark!.simpleMode ? 50 : 100)
+    const newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, _clientX))
+    appStore.config.webContentsView!.bounds.width = newWidth
   }
 }, 16)
 
@@ -46,7 +50,7 @@ onUnmounted(() => {
   <div h-vh w-full flex flex-1>
     <div
       h-full w-1
-      cursor-col-resize bg-gray-300 hover:bg-blue-400
+      cursor-col-resize bg-gray-500 hover:bg-gray-200
       @mousedown="startDrag"
     />
     <ElTabs type="border-card" flex-1>

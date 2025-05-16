@@ -1,16 +1,18 @@
 import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
-import { loadSetting } from './utils/storage'
+import { getConf, initConf } from './conf'
 import { createWebView } from './view'
 
 function createWindow(): void {
-  const setting = loadSetting()
+  const conf = getConf()
+
+  const browserWindowConfig = conf.get('browserWindow')
 
   const mainWindow = new BrowserWindow({
-    width: setting.browserWindow.width,
-    height: setting.browserWindow.height,
+    width: browserWindowConfig.width,
+    height: browserWindowConfig.height,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -38,7 +40,7 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  createWebView(mainWindow, setting)
+  createWebView(mainWindow)
 }
 
 // This method will be called when Electron has finished
@@ -55,9 +57,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
+  initConf()
   createWindow()
 
   app.on('activate', () => {

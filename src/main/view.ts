@@ -1,10 +1,10 @@
 import type { BrowserWindow } from 'electron'
-import type { Setting } from './utils/storage'
-import { ipcMain, WebContentsView } from 'electron'
-import { saveSetting } from './utils/storage'
+import { ipcMain, Menu, MenuItem, WebContentsView } from 'electron'
+import { getConf } from './conf'
 
-export function createWebView(mainWindow: BrowserWindow, setting: Setting) {
-  const [contentWidth, contentHeight] = mainWindow.getContentSize()
+export function createWebView(mainWindow: BrowserWindow) {
+  const conf = getConf()
+  const webContentsViewConfig = conf.get('webContentsView')
 
   const view = new WebContentsView()
   mainWindow.contentView.addChildView(view)
@@ -12,46 +12,72 @@ export function createWebView(mainWindow: BrowserWindow, setting: Setting) {
   const mobileUserAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'
   view.webContents.setUserAgent(mobileUserAgent)
 
-  const viewSize = { width: setting.webContentsView.width, height: contentHeight }
-
   view.webContents.loadURL('https://gbf.game.mbga.jp')
 
-  setViewSize(view, viewSize.width, viewSize.height)
+  const bounds = { ...webContentsViewConfig.bounds }
+
+  setViewSize(view, bounds)
+
+  // 添加右键菜单处理
+  view.webContents.on('context-menu', (event, params) => {
+    const menu = new Menu()
+
+    // 添加菜单项
+    menu.append(new MenuItem({
+      label: '刷新',
+      click: () => view.webContents.reload(),
+    }))
+
+    menu.append(new MenuItem({
+      label: '开发者工具',
+      click: () => view.webContents.openDevTools(),
+    }))
+
+    menu.popup()
+  })
 
   mainWindow.on('resize', () => {
     const [contentWidth, contentHeight] = mainWindow.getContentSize()
-    viewSize.height = contentHeight
-    setViewSize(view, viewSize.width, viewSize.height)
+    bounds.height = contentHeight
+    setViewSize(view, bounds)
+    conf.set('webContentsView.bounds', bounds)
   })
 
   mainWindow.on('resized', () => {
     const bounds = mainWindow.getBounds()
-    saveSetting({
-      browserWindow: { width: bounds.width, height: bounds.height },
-      webContentsView: { width: viewSize.width, height: viewSize.height },
-    })
+    const [contentWidth, contentHeight] = mainWindow.getContentSize()
+    conf.set('browserWindow', { width: bounds.width, height: bounds.height })
+    conf.set('webContentsView.bounds.height', contentHeight)
+  })
+
+  ipcMain.on('show-bookmark-menu', (event, { x, y, mark }) => {
+    console.log('==========show-bookmark-menu================')
+
+    const menu = Menu.buildFromTemplate([
+      {
+        label: `打开 ${mark.name}`,
+        click: () => {
+          event.sender.send('navigate-to', mark.url)
+        },
+      },
+      {
+        label: '删除书签',
+        click: () => {
+          event.sender.send('delete-bookmark', mark.url)
+        },
+      },
+    ])
+
+    menu.popup({ x, y })
   })
 
   ipcMain.on('resize-webcontents', (event, width) => {
-    viewSize.width = width
-    setViewSize(view, viewSize.width, viewSize.height)
+    bounds.width = width
+    setViewSize(view, bounds)
+    conf.set('webContentsView.bounds', bounds)
   })
 
-  ipcMain.on('save-viewSize', (event, viewSize) => {
-    saveSetting({ webContentsView: { width: viewSize.width, height: viewSize.height } })
-  })
-
-  ipcMain.handle('get-view-size', () => {
-    return viewSize
-  })
-
-  try {
-    view.webContents.debugger.attach('1.3')
-  }
-  catch (err) {
-    console.log('Debugger attach failed : ', err)
-  }
-
+  view.webContents.debugger.attach('1.3')
   view.webContents.debugger.on('detach', (event, reason) => {
     console.log('Debugger detached due to : ', reason)
   })
@@ -99,21 +125,20 @@ export function createWebView(mainWindow: BrowserWindow, setting: Setting) {
 
   view.webContents.on('did-finish-load', () => {
     console.log('================did-finish-load=====================')
-    view.webContents.openDevTools()
   })
 
   return view
 }
 
-function setViewSize(view: WebContentsView, width: number, height: number) {
-  view.setBounds({ x: 0, y: 0, width, height })
+function setViewSize(view: WebContentsView, bounds: { width: number, height: number, x: number, y: number }) {
+  view.setBounds(bounds)
 
   view.webContents.enableDeviceEmulation({
     screenPosition: 'mobile',
-    screenSize: { width, height },
-    viewPosition: { x: 0, y: 0 },
+    screenSize: { width: bounds.width, height: bounds.height },
+    viewPosition: { x: bounds.x, y: bounds.y },
     deviceScaleFactor: 1,
-    viewSize: { width, height },
+    viewSize: { width: bounds.width, height: bounds.height },
     scale: 1,
   })
 }

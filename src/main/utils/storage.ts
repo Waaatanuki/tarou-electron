@@ -1,53 +1,51 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { app } from 'electron'
-import { merge } from 'lodash-es'
+// import type { Config } from 'tarou'
+// import fs from 'node:fs'
+// import path from 'node:path'
+// import { app } from 'electron'
+// import { debounce, merge } from 'lodash-es'
 
-export interface Setting {
-  browserWindow: {
-    width: number
-    height: number
-  }
-  webContentsView: {
-    width: number
-    height: number
-  }
-}
+// // 定义默认设置
+// const DEFAULT_CONFIG: Config = {
+//   browserWindow: {
+//     width: 1000,
+//     height: 670,
+//   },
+//   webContentsView: {
+//     width: 325,
+//     height: 635,
+//   },
+//   bookmark: {
+//     simpleMode: false,
+//     list: [],
+//   },
+// }
 
-// 定义默认设置
-const DEFAULT_SETTING: Setting = {
-  browserWindow: {
-    width: 1000,
-    height: 670,
-  },
-  webContentsView: {
-    width: 325,
-    height: 635,
-  },
-}
+// // 防抖保存（2000ms间隔）
+// const debouncedSave = debounce((filePath: string, data: Partial<Setting>) => {
+//   const currentSettings = fs.existsSync(filePath)
+//     ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
+//     : {}
 
-export function saveSetting(setting: Partial<Setting>): void {
-  const filePath = path.join(app.getPath('userData'), 'setting.json')
+//   const mergedSettings = merge({}, currentSettings, data)
 
-  const currentSettings = fs.existsSync(filePath)
-    ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
-    : {}
+//   fs.writeFileSync(filePath, JSON.stringify(mergedSettings))
+//   console.log('=================更新用户配置成功=========================')
+// }, 1000)
 
-  const mergedSettings = merge({}, currentSettings, setting)
+// export function saveSetting(setting: Partial<Setting>): void {
+//   const filePath = path.join(app.getPath('userData'), 'setting.json')
+//   debouncedSave(filePath, setting)
+// }
 
-  fs.writeFileSync(filePath, JSON.stringify(mergedSettings))
-  console.log('=================更新用户配置成功=========================')
-}
+// export function loadSetting(): Setting {
+//   try {
+//     const filePath = path.join(app.getPath('userData'), 'setting.json')
+//     const userSettings: Partial<Setting> = JSON.parse(fs.readFileSync(filePath, 'utf8'))
 
-export function loadSetting(): Setting {
-  try {
-    const filePath = path.join(app.getPath('userData'), 'setting.json')
-    const userSettings: Partial<Setting> = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-
-    console.log('=================获取用户配置成功=========================')
-    return merge({}, DEFAULT_SETTING, userSettings)
-  }
-  catch {
-    return DEFAULT_SETTING
-  }
-}
+//     console.log('=================获取用户配置成功=========================')
+//     return merge({}, DEFAULT_SETTING, userSettings)
+//   }
+//   catch {
+//     return DEFAULT_SETTING
+//   }
+// }
