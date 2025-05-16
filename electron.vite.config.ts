@@ -23,7 +23,7 @@ export default defineConfig({
       vue(),
       AutoImport({
         imports: ['vue', '@vueuse/core', 'pinia'],
-        dirs: ['src/composables'],
+        dirs: ['src/composables', 'src/stores'],
         resolvers: [ElementPlusResolver()],
         vueTemplate: true,
         dts: '../../types/auto-imports.d.ts',

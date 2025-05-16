@@ -18,7 +18,10 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
-    "electron-updater": "^6.3.9"
+    "@types/lodash-es": "^4.17.12",
+    "electron-updater": "^6.3.9",
+    "lodash-es": "^4.17.21",
+    "pinia": "^3.0.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.0",

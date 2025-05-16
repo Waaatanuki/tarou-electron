@@ -2,13 +2,15 @@ import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
+import { loadSetting } from './utils/storage'
 import { createWebView } from './view'
 
 function createWindow(): void {
-  // Create the browser window.
+  const setting = loadSetting()
+
   const mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 670,
+    width: setting.browserWindow.width,
+    height: setting.browserWindow.height,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -36,7 +38,7 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  createWebView(mainWindow)
+  createWebView(mainWindow, setting)
 }
 
 // This method will be called when Electron has finished

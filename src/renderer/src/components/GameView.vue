@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const width = ref(320)
+const appStore = useAppStore()
 
 onMounted(async () => {
   const size = await window.electron.ipcRenderer.invoke('get-view-size')
-  width.value = size.width
+  appStore.viewSize = size
 })
 </script>
 
 <template>
-  <div :style="{ width: `${width}px` }" h-100vh />
+  <div :style="{ width: `${appStore.viewSize.width}px`, height: `${appStore.viewSize.height}px` }" />
 </template>
