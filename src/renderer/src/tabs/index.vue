@@ -44,6 +44,10 @@ onUnmounted(() => {
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
 })
+
+const value = ref('Mon')
+
+const options = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 </script>
 
 <template>
@@ -53,6 +57,7 @@ onUnmounted(() => {
       cursor-col-resize bg-gray-500 hover:bg-gray-200
       @mousedown="startDrag"
     />
+
     <ElTabs type="border-card" flex-1>
       <ElTabPane label="主页">
         <Dashborad />
@@ -61,5 +66,12 @@ onUnmounted(() => {
         <Party />
       </ElTabPane>
     </ElTabs>
+    <div>
+      <el-segmented v-model="value" direction="vertical" :options="options">
+        <template #default>
+          <Icon icon="material-symbols:bookmark-star-sharp" />
+        </template>
+      </el-segmented>
+    </div>
   </div>
 </template>
