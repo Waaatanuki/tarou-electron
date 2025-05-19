@@ -15,6 +15,8 @@ export function createWebView(mainWindow: BrowserWindow) {
   view.webContents.loadURL('https://gbf.game.mbga.jp')
 
   const bounds = { ...webContentsViewConfig.bounds }
+  const [contentWidth, contentHeight] = mainWindow.getContentSize()
+  bounds.height = contentHeight
 
   setViewSize(view, bounds)
 
@@ -69,6 +71,12 @@ export function createWebView(mainWindow: BrowserWindow) {
     ])
 
     menu.popup({ x, y })
+  })
+
+  ipcMain.on('toggle-mode', (event, mode) => {
+    bounds.x = mode ? 30 : 100
+    setViewSize(view, bounds)
+    conf.set('webContentsView.bounds', bounds)
   })
 
   ipcMain.on('resize-webcontents', (event, width) => {

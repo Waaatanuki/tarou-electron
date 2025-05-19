@@ -13,7 +13,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="!loading" h-full w-full flex>
+  <div v-if="!loading" h-vh w-vw flex>
     <Bookmark />
     <GameView />
     <SidePanel />
