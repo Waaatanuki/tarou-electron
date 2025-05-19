@@ -8,6 +8,7 @@ const scrollbarRef = ref<ScrollbarInstance>()
 const inputRef = ref<InputInstance>()
 const showInput = ref(false)
 const newBookmarkName = ref('')
+const currentUrl = ref('')
 const isSimpleMode = computed(() => appStore.config.bookmark?.simpleMode)
 const wrapperWidth = computed(() => isSimpleMode.value ? 30 : 100)
 const fixButton = computed(() => [
@@ -33,6 +34,13 @@ function navigateTo(url: string) {
 
 async function handleCommand(command: string) {
   if (command === 'add') {
+    currentUrl.value = await window.electron.ipcRenderer.invoke('add-bookmark')
+
+    if (appStore.config.bookmark!.list.some(item => item.url === currentUrl.value)) {
+      createNotification({ body: '该页面已被保存' })
+      return
+    }
+
     if (isSimpleMode.value)
       await handleCommand('toggle')
     showInput.value = true
@@ -49,10 +57,9 @@ async function handleCommand(command: string) {
 }
 
 async function addBookmark() {
-  const url = await window.electron.ipcRenderer.invoke('add-bookmark')
   appStore.config.bookmark!.list.push({
     name: newBookmarkName.value.trim() ? newBookmarkName.value.trim() : '未命名',
-    url,
+    url: currentUrl.value,
     icon: 'material-symbols:bookmark-sharp',
     color: '#FAFAFA',
   })
