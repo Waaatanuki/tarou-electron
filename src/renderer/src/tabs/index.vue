@@ -16,12 +16,12 @@ function startDrag(e: MouseEvent) {
   isDragging.value = true
 }
 
-function stopDrag() {
+async function stopDrag() {
   if (!isDragging.value)
     return
   isDragging.value = false
-  conf.set('webContentsView.bounds.width', appStore.config.webContentsView?.bounds.width)
-  conf.set('webContentsView.bounds.height', appStore.config.webContentsView?.bounds.height)
+  await conf.set('webContentsView.bounds.width', appStore.config.webContentsView?.bounds.width)
+  await conf.set('webContentsView.bounds.height', appStore.config.webContentsView?.bounds.height)
 }
 
 const onDrag = useThrottleFn((e: MouseEvent) => {

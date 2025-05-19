@@ -52,25 +52,21 @@ export function createWebView(mainWindow: BrowserWindow) {
     conf.set('webContentsView.bounds.height', contentHeight)
   })
 
-  ipcMain.on('show-bookmark-menu', (event, { x, y, mark }) => {
-    console.log('==========show-bookmark-menu================')
-
+  ipcMain.on('show-bookmark-menu', (event, { x, y, index }) => {
     const menu = Menu.buildFromTemplate([
-      {
-        label: `打开 ${mark.name}`,
-        click: () => {
-          event.sender.send('navigate-to', mark.url)
-        },
-      },
       {
         label: '删除书签',
         click: () => {
-          event.sender.send('delete-bookmark', mark.url)
+          event.sender.send('delete-bookmark', index)
         },
       },
     ])
 
     menu.popup({ x, y })
+  })
+
+  ipcMain.handle('add-bookmark', async () => {
+    return view.webContents.getURL()
   })
 
   ipcMain.on('toggle-mode', (event, mode) => {
