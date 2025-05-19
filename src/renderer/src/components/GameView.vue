@@ -4,6 +4,6 @@ const appStore = useAppStore()
 
 <template>
   <div
-    :style="{ width: `${appStore.config.webContentsView!.bounds.width}px`, height: `${appStore.config.webContentsView!.bounds.height}px` }"
+    :style="{ width: `${appStore.config.webContentsView!.bounds.width}px`, height: '100vh' }"
   />
 </template>

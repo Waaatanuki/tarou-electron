@@ -2,6 +2,7 @@
 import conf from '@renderer/conf'
 
 const appStore = useAppStore()
+const { height } = useWindowSize()
 
 const isSimpleMode = computed(() => appStore.config.bookmark?.simpleMode)
 const wrapperWidth = computed(() => isSimpleMode.value ? 30 : 100)
@@ -48,19 +49,22 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
 
 <template>
   <div h-vh flex flex-col justify-between bg-dark text-neutral-50 font-bold :style="{ width: `${wrapperWidth}px` }">
-    <div flex flex-col>
-      <div
-        v-for="mark, idx in marks"
-        :key="mark.url"
-        flex cursor-pointer items-center gap-2 p-2 text-xs leading-none hover:bg-gray-700
-        @contextmenu="showContextMenu(idx, $event)" @click="navigateTo(mark.url)"
-      >
-        <Icon :icon="mark.icon" :style="{ color: mark.color }" />
-        <div v-if="!isSimpleMode">
-          {{ mark.name }}
+    <el-scrollbar :height="height - 70">
+      <div flex flex-col>
+        <div
+          v-for="mark, idx in marks"
+          :key="mark.url"
+          flex cursor-pointer items-center gap-2 p-2 text-xs leading-none hover:bg-gray-700
+          @contextmenu="showContextMenu(idx, $event)" @click="navigateTo(mark.url)"
+        >
+          <Icon :icon="mark.icon" :style="{ color: mark.color }" />
+          <div v-if="!isSimpleMode">
+            {{ mark.name }}
+          </div>
         </div>
       </div>
-    </div>
+    </el-scrollbar>
+
     <div flex flex-col>
       <div
         v-for="mark in fixButton"
