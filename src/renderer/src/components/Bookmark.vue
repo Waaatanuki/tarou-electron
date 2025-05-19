@@ -23,7 +23,7 @@ function showContextMenu(index: number, event: MouseEvent) {
 }
 
 function navigateTo(url: string) {
-  console.log(url)
+  window.electron.ipcRenderer.send('navigate-to', url)
 }
 
 async function handleCommand(command: string) {

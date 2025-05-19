@@ -52,6 +52,10 @@ export function createWebView(mainWindow: BrowserWindow) {
     conf.set('webContentsView.bounds.height', contentHeight)
   })
 
+  ipcMain.on('navigate-to', (event, url) => {
+    view.webContents.loadURL(url)
+  })
+
   ipcMain.on('show-bookmark-menu', (event, { x, y, index }) => {
     const menu = Menu.buildFromTemplate([
       {
