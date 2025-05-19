@@ -4,6 +4,10 @@ import conf from '@renderer/conf'
 const appStore = useAppStore()
 const { height } = useWindowSize()
 
+const scrollbarRef = ref<ScrollbarInstance>()
+const inputRef = ref<InputInstance>()
+const showInput = ref(false)
+const newBookmarkName = ref('')
 const isSimpleMode = computed(() => appStore.config.bookmark?.simpleMode)
 const wrapperWidth = computed(() => isSimpleMode.value ? 30 : 100)
 const fixButton = computed(() => [
@@ -29,9 +33,12 @@ function navigateTo(url: string) {
 
 async function handleCommand(command: string) {
   if (command === 'add') {
-    window.electron.ipcRenderer.invoke('add-bookmark').then(async (url: string) => {
-      appStore.config.bookmark!.list.push({ name: 'New', url, icon: 'material-symbols:bookmark-sharp', color: '#FAFAFA' })
-      await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
+    if (isSimpleMode.value)
+      await handleCommand('toggle')
+    showInput.value = true
+    nextTick(() => {
+      scrollbarRef.value?.setScrollTop(9999)
+      inputRef.value?.focus()
     })
   }
   if (command === 'toggle') {
@@ -41,6 +48,19 @@ async function handleCommand(command: string) {
   }
 }
 
+async function addBookmark() {
+  const url = await window.electron.ipcRenderer.invoke('add-bookmark')
+  appStore.config.bookmark!.list.push({
+    name: newBookmarkName.value.trim() ? newBookmarkName.value.trim() : '未命名',
+    url,
+    icon: 'material-symbols:bookmark-sharp',
+    color: '#FAFAFA',
+  })
+  await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
+  newBookmarkName.value = ''
+  showInput.value = false
+}
+
 window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
   appStore.config.bookmark.list.splice(index, 1)
   await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
@@ -48,8 +68,8 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
 </script>
 
 <template>
-  <div h-vh flex flex-col justify-between bg-dark text-neutral-50 font-bold :style="{ width: `${wrapperWidth}px` }">
-    <el-scrollbar :height="height - 70">
+  <div h-vh flex flex-col justify-between bg-dark text-xs text-neutral-50 font-bold :style="{ width: `${wrapperWidth}px` }">
+    <el-scrollbar ref="scrollbarRef" :height="height - 70">
       <div flex flex-col>
         <div
           v-for="mark, idx in marks"
@@ -57,10 +77,20 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
           flex cursor-pointer items-center gap-2 p-2 text-xs leading-none hover:bg-gray-700
           @contextmenu="showContextMenu(idx, $event)" @click="navigateTo(mark.url)"
         >
-          <Icon :icon="mark.icon" :style="{ color: mark.color }" />
-          <div v-if="!isSimpleMode">
+          <Icon :icon="mark.icon" :style="{ color: mark.color }" shrink-0 />
+          <div v-if="!isSimpleMode" truncate>
             {{ mark.name }}
           </div>
+        </div>
+        <div v-if="showInput && !isSimpleMode" fc>
+          <el-input
+            ref="inputRef"
+            v-model="newBookmarkName"
+            style="width:78px"
+            size="small"
+            @blur="addBookmark"
+            @keyup.enter="addBookmark"
+          />
         </div>
       </div>
     </el-scrollbar>
@@ -69,9 +99,8 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
       <div
         v-for="mark in fixButton"
         :key="mark.command"
-        flex
-        cursor-pointer
-        items-center gap-2 p-2 text-xs leading-none hover:bg-gray-700 @click="handleCommand(mark.command)"
+        flex cursor-pointer items-center gap-2 p-2 leading-none hover:bg-gray-700
+        @click="handleCommand(mark.command)"
       >
         <div :class="mark.icon" />
         <div v-if="!isSimpleMode">
