@@ -1,10 +1,26 @@
 <script setup lang="ts">
 import conf from '../conf'
+import BookmarkSetting from './bookmark/index.vue'
 import Dashborad from './dashboard/index.vue'
-import Party from './party/index.vue'
 
 const appStore = useAppStore()
 const isDragging = ref(false)
+const currentView = ref('BookmarkSetting')
+
+const viewList: { key: string, icon: string }[] = [
+  { key: 'Dashborad', icon: 'material-symbols:dashboard' },
+  { key: 'BookmarkSetting', icon: 'material-symbols:bookmark-star-sharp' },
+]
+
+const segmentedProps = {
+  value: 'key',
+  label: 'key',
+}
+
+const componentMap = {
+  Dashborad,
+  BookmarkSetting,
+}
 
 watch(() => appStore.config.webContentsView?.bounds.width, (newWidth) => {
   window.electron.ipcRenderer.send('resize-webcontents', newWidth)
@@ -44,10 +60,6 @@ onUnmounted(() => {
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
 })
-
-const value = ref('Mon')
-
-const options = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 </script>
 
 <template>
@@ -58,20 +70,20 @@ const options = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
       @mousedown="startDrag"
     />
 
-    <ElTabs type="border-card" flex-1>
-      <ElTabPane label="主页">
-        <Dashborad />
-      </ElTabPane>
-      <ElTabPane label="队伍信息">
-        <Party />
-      </ElTabPane>
-    </ElTabs>
-    <div>
-      <el-segmented v-model="value" direction="vertical" :options="options">
-        <template #default>
-          <Icon icon="material-symbols:bookmark-star-sharp" />
+    <component :is="componentMap[currentView]" flex-1 />
+
+    <div class="custom-segmented">
+      <el-segmented v-model="currentView" direction="vertical" :options="viewList" :props="segmentedProps">
+        <template #default="{ item }">
+          <Icon :icon="(item as any).icon" />
         </template>
       </el-segmented>
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-segmented .el-segmented {
+  --el-segmented-item-selected-bg-color: #0F766E;
+}
+</style>

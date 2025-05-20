@@ -4,7 +4,7 @@
 
 <template>
   <div>
-    队伍管理
+    书签设置
   </div>
 </template>
 

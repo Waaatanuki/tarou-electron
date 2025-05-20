@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import conf from './conf'
-import SidePanel from './tabs/index.vue'
+import ViewPanel from './views/index.vue'
 
 const appStore = useAppStore()
 const loading = ref(true)
@@ -14,8 +14,8 @@ onMounted(async () => {
 
 <template>
   <div v-if="!loading" h-vh w-vw flex>
-    <Bookmark />
+    <MarkBar />
     <GameView />
-    <SidePanel />
+    <ViewPanel />
   </div>
 </template>
