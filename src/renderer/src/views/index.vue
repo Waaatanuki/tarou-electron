@@ -22,7 +22,9 @@ const componentMap = {
 
 <template>
   <div h-vh w-full flex flex-1>
-    <component :is="componentMap[appStore.currentView]" flex-1 />
+    <keep-alive>
+      <component :is="componentMap[appStore.currentView]" flex-1 />
+    </keep-alive>
 
     <div class="custom-segmented">
       <el-segmented v-model="appStore.currentView" direction="vertical" :options="viewList" :props="segmentedProps">
