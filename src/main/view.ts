@@ -1,5 +1,5 @@
 import type { BrowserWindow } from 'electron'
-import { ipcMain, Menu, MenuItem, WebContentsView } from 'electron'
+import { ipcMain, Menu, MenuItem, shell, WebContentsView } from 'electron'
 import { getConf } from './conf'
 
 export function createWebView(mainWindow: BrowserWindow) {
@@ -50,6 +50,10 @@ export function createWebView(mainWindow: BrowserWindow) {
     const [contentWidth, contentHeight] = mainWindow.getContentSize()
     conf.set('browserWindow', { width: bounds.width, height: bounds.height })
     conf.set('webContentsView.bounds.height', contentHeight)
+  })
+
+  ipcMain.on('open-external', (event, url) => {
+    shell.openExternal(url)
   })
 
   ipcMain.on('navigate-to', (event, url) => {

@@ -111,8 +111,23 @@ function loadFile(file: File) {
               </div>
               <el-form-item label="图标">
                 <el-input v-model="mark.icon">
-                  <template #suffix>
+                  <template #prefix>
                     <Icon :icon="mark.icon" />
+                  </template>
+                  <template #suffix>
+                    <el-popover
+                      effect="dark"
+                      placement="top-start"
+                    >
+                      <template #reference>
+                        <Icon icon="carbon:help" />
+                      </template>
+                      <div fc>
+                        <TheButton @click="openExternal('https://icones.netlify.app/')">
+                          图标来源
+                        </TheButton>
+                      </div>
+                    </el-popover>
                   </template>
                 </el-input>
               </el-form-item>
