@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import conf from '@renderer/conf'
+import { VueDraggableNext } from 'vue-draggable-next'
 
 const appStore = useAppStore()
 const { height } = useWindowSize()
@@ -15,7 +16,10 @@ const fixButton = computed(() => [
   { name: isSimpleMode.value ? '展开' : '折叠', command: 'toggle', icon: isSimpleMode.value ? 'tabler:layout-sidebar-left-expand-filled' : 'tabler:layout-sidebar-left-collapse-filled' },
   { name: '设置', command: 'set', icon: 'material-symbols:bookmark-star-sharp' },
 ])
-const marks = computed(() => appStore.config.bookmark?.list || [])
+
+watch(() => appStore.config.bookmark?.list, async () => {
+  await conf.set('bookmark.list', toRawData(appStore.config.bookmark!.list))
+}, { deep: true })
 
 function showContextMenu(index: number, event: MouseEvent) {
   event.preventDefault()
@@ -60,42 +64,43 @@ async function addBookmark() {
     icon: 'carbon:bookmark-filled',
     color: '#FAFAFA',
   })
-  await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
+
   newBookmarkName.value = ''
   showInput.value = false
 }
 
 window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
   appStore.config.bookmark!.list.splice(index, 1)
-  await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
 })
 </script>
 
 <template>
   <div h-vh flex flex-col justify-between bg-dark text-xs text-neutral-50 font-bold :style="{ width: `${wrapperWidth}px` }">
-    <el-scrollbar ref="scrollbarRef" :height="height - 110">
-      <div flex flex-col>
-        <div
-          v-for="mark, idx in marks"
-          :key="mark.url"
-          flex cursor-pointer items-center gap-2 p-2 text-xs leading-none hover:bg-gray-700
-          @contextmenu="showContextMenu(idx, $event)" @click="navigateTo(mark.url)"
-        >
-          <Icon :icon="mark.icon" :style="{ color: mark.color }" shrink-0 />
-          <div v-if="!isSimpleMode" truncate>
-            {{ mark.name }}
+    <el-scrollbar ref="scrollbarRef" :max-height="height - 140">
+      <VueDraggableNext v-model="appStore.config.bookmark!.list" flex flex-col>
+        <transition-group name="list">
+          <div
+            v-for="mark, idx in appStore.config.bookmark!.list"
+            :key="mark.id"
+            flex cursor-pointer items-center gap-2 p-2 text-xs leading-none hover:bg-gray-700
+            @contextmenu="showContextMenu(idx, $event)" @click="navigateTo(mark.url)"
+          >
+            <Icon :icon="mark.icon" :style="{ color: mark.color }" shrink-0 />
+            <div v-if="!isSimpleMode" truncate>
+              {{ mark.name }}
+            </div>
           </div>
-        </div>
-        <div v-if="showInput && !isSimpleMode" fc>
-          <el-input
-            ref="inputRef"
-            v-model="newBookmarkName"
-            style="width:78px"
-            size="small"
-            @blur="addBookmark"
-            @keyup.enter="addBookmark"
-          />
-        </div>
+        </transition-group>
+      </VueDraggableNext>
+      <div v-if="showInput && !isSimpleMode" fc>
+        <el-input
+          ref="inputRef"
+          v-model="newBookmarkName"
+          style="width:78px"
+          size="small"
+          @blur="addBookmark"
+          @keyup.enter="addBookmark"
+        />
       </div>
     </el-scrollbar>
 
@@ -114,3 +119,21 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
     </div>
   </div>
 </template>
+
+<style>
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.list-leave-active {
+  position: absolute;
+}
+</style>

@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import conf from '@renderer/conf'
-
 const appStore = useAppStore()
 const { height } = useWindowSize()
 const { open, reset, onChange } = useFileDialog({ accept: '.json' })
 
-watch(() => appStore.config.bookmark?.list, async (val) => {
-  await conf.set('bookmark.list', toRaw(val))
-}, { deep: true })
-
-function deleteMark(id: string) {
+async function deleteMark(id: string) {
   const index = appStore.config.bookmark?.list.findIndex(item => item.id === id)
-  if (index !== undefined && index !== -1)
+  if (index !== undefined && index !== -1) {
     appStore.config.bookmark?.list.splice(index, 1)
+  }
 }
 
 function exportBookmarks() {
