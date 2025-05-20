@@ -3,8 +3,10 @@ import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('app', () => {
   const config = ref<Partial<Config>>({})
+  const currentView = ref('BookmarkSetting')
 
   return {
     config,
+    currentView,
   }
 })

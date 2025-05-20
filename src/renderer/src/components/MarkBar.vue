@@ -11,8 +11,9 @@ const newBookmarkName = ref('')
 const isSimpleMode = computed(() => appStore.config.bookmark?.simpleMode)
 const wrapperWidth = computed(() => isSimpleMode.value ? 30 : 100)
 const fixButton = computed(() => [
-  { name: '新增', command: 'add', icon: 'i-ph:star-thin' },
-  { name: isSimpleMode.value ? '展开' : '折叠', command: 'toggle', icon: isSimpleMode.value ? 'i-tabler:layout-sidebar-left-expand-filled' : 'i-tabler:layout-sidebar-left-collapse-filled' },
+  { name: '新增', command: 'add', icon: 'ph:star-thin' },
+  { name: isSimpleMode.value ? '展开' : '折叠', command: 'toggle', icon: isSimpleMode.value ? 'tabler:layout-sidebar-left-expand-filled' : 'tabler:layout-sidebar-left-collapse-filled' },
+  { name: '设置', command: 'set', icon: 'material-symbols:bookmark-star-sharp' },
 ])
 const marks = computed(() => appStore.config.bookmark?.list || [])
 
@@ -45,6 +46,9 @@ async function handleCommand(command: string) {
     window.electron.ipcRenderer.send('toggle-mode', appStore.config.bookmark!.simpleMode)
     await conf.set('bookmark.simpleMode', appStore.config.bookmark!.simpleMode)
   }
+  if (command === 'set') {
+    appStore.currentView = 'BookmarkSetting'
+  }
 }
 
 async function addBookmark() {
@@ -69,7 +73,7 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
 
 <template>
   <div h-vh flex flex-col justify-between bg-dark text-xs text-neutral-50 font-bold :style="{ width: `${wrapperWidth}px` }">
-    <el-scrollbar ref="scrollbarRef" :height="height - 70">
+    <el-scrollbar ref="scrollbarRef" :height="height - 110">
       <div flex flex-col>
         <div
           v-for="mark, idx in marks"
@@ -102,7 +106,7 @@ window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
         flex cursor-pointer items-center gap-2 p-2 leading-none hover:bg-gray-700
         @click="handleCommand(mark.command)"
       >
-        <div :class="mark.icon" />
+        <Icon :icon="mark.icon" />
         <div v-if="!isSimpleMode">
           {{ mark.name }}
         </div>

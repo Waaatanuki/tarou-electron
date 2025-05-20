@@ -2,7 +2,7 @@
 import BookmarkSetting from './bookmark/index.vue'
 import Dashborad from './dashboard/index.vue'
 
-const currentView = ref('BookmarkSetting')
+const appStore = useAppStore()
 
 const viewList: { key: string, icon: string }[] = [
   { key: 'Dashborad', icon: 'material-symbols:dashboard' },
@@ -22,10 +22,10 @@ const componentMap = {
 
 <template>
   <div h-vh w-full flex flex-1>
-    <component :is="componentMap[currentView]" flex-1 />
+    <component :is="componentMap[appStore.currentView]" flex-1 />
 
     <div class="custom-segmented">
-      <el-segmented v-model="currentView" direction="vertical" :options="viewList" :props="segmentedProps">
+      <el-segmented v-model="appStore.currentView" direction="vertical" :options="viewList" :props="segmentedProps">
         <template #default="{ item }">
           <Icon :icon="(item as any).icon" />
         </template>

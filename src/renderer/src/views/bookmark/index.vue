@@ -115,16 +115,13 @@ function loadFile(file: File) {
                     <Icon :icon="mark.icon" />
                   </template>
                   <template #suffix>
-                    <el-popover
-                      effect="dark"
-                      placement="top-start"
-                    >
+                    <el-popover effect="dark" placement="top-start">
                       <template #reference>
                         <Icon icon="carbon:help" />
                       </template>
                       <div fc>
                         <TheButton @click="openExternal('https://icones.netlify.app/')">
-                          图标来源
+                          获取图标
                         </TheButton>
                       </div>
                     </el-popover>
