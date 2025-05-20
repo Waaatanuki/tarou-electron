@@ -60,7 +60,7 @@ async function addBookmark() {
   appStore.config.bookmark!.list.push({
     name: newBookmarkName.value.trim() ? newBookmarkName.value.trim() : '未命名',
     url: currentUrl.value,
-    icon: 'material-symbols:bookmark-sharp',
+    icon: 'carbon:bookmark-filled',
     color: '#FAFAFA',
   })
   await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
@@ -69,7 +69,7 @@ async function addBookmark() {
 }
 
 window.electron.ipcRenderer.on('delete-bookmark', async (event, index) => {
-  appStore.config.bookmark.list.splice(index, 1)
+  appStore.config.bookmark!.list.splice(index, 1)
   await conf.set('bookmark.list', toRaw(appStore.config.bookmark!.list))
 })
 </script>
