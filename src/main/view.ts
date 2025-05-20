@@ -46,10 +46,11 @@ export function createWebView(mainWindow: BrowserWindow) {
   })
 
   mainWindow.on('resized', () => {
-    const bounds = mainWindow.getBounds()
+    const windowBbounds = mainWindow.getBounds()
     const [contentWidth, contentHeight] = mainWindow.getContentSize()
-    conf.set('browserWindow', { width: bounds.width, height: bounds.height })
+    conf.set('browserWindow', { width: windowBbounds.width, height: windowBbounds.height })
     conf.set('webContentsView.bounds.height', contentHeight)
+    mainWindow.webContents.send('window-resized', { width: bounds.width, height: contentHeight })
   })
 
   ipcMain.on('open-external', (event, url) => {

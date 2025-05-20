@@ -13,6 +13,11 @@ onMounted(async () => {
   appStore.config.webContentsView = await conf.get('webContentsView') as any
   appStore.config.bookmark = await conf.get('bookmark') as any
   loading.value = false
+
+  window.electron.ipcRenderer.on('window-resized', (event, { width, height }) => {
+    appStore.config.webContentsView!.bounds.width = width
+    appStore.config.webContentsView!.bounds.height = height
+  })
 })
 </script>
 
@@ -23,6 +28,7 @@ onMounted(async () => {
       <GameView shrink-0 />
       <ResizeBar shrink-0 />
       <ViewPanel />
+      <Segment shrink-0 />
     </div>
   </el-config-provider>
 </template>
