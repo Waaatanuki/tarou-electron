@@ -7,6 +7,9 @@ const appStore = useAppStore()
 const loading = ref(true)
 
 onMounted(async () => {
+  if (!isDark.value)
+    toggleDark()
+
   appStore.config.webContentsView = await conf.get('webContentsView') as any
   appStore.config.bookmark = await conf.get('bookmark') as any
   loading.value = false
