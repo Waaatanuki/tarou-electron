@@ -7,6 +7,10 @@ const { height } = useWindowSize()
 watch(() => appStore.config.bookmark?.list, async (val) => {
   await conf.set('bookmark.list', toRaw(val))
 }, { deep: true })
+
+function deleteMark(idx: number) {
+  appStore.config.bookmark?.list.splice(idx, 1)
+}
 </script>
 
 <template>
@@ -43,7 +47,7 @@ watch(() => appStore.config.bookmark?.list, async (val) => {
                   </el-form-item>
                 </div>
                 <el-form-item>
-                  <TheButton icon="carbon:trash-can" />
+                  <TheButton icon="carbon:trash-can" @click="deleteMark(idx)" />
                 </el-form-item>
               </div>
               <el-form-item label="图标">
