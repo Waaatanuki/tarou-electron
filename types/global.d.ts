@@ -14,7 +14,15 @@ declare module 'tarou' {
     }
     bookmark: {
       simpleMode: boolean
-      list: { name: string, icon: string, color: string, url: string }[]
+      list: BookmarkItem[]
     }
+  }
+
+  interface BookmarkItem {
+    id: string
+    name: string
+    icon: string
+    color: string
+    url: string
   }
 }

@@ -8,7 +8,6 @@ const scrollbarRef = ref<ScrollbarInstance>()
 const inputRef = ref<InputInstance>()
 const showInput = ref(false)
 const newBookmarkName = ref('')
-const currentUrl = ref('')
 const isSimpleMode = computed(() => appStore.config.bookmark?.simpleMode)
 const wrapperWidth = computed(() => isSimpleMode.value ? 30 : 100)
 const fixButton = computed(() => [
@@ -20,7 +19,6 @@ const marks = computed(() => appStore.config.bookmark?.list || [])
 function showContextMenu(index: number, event: MouseEvent) {
   event.preventDefault()
 
-  // 通过 IPC 通知主进程显示菜单
   window.electron.ipcRenderer.send('show-bookmark-menu', {
     x: event.clientX,
     y: event.clientY,
@@ -34,13 +32,6 @@ function navigateTo(url: string) {
 
 async function handleCommand(command: string) {
   if (command === 'add') {
-    currentUrl.value = await window.electron.ipcRenderer.invoke('add-bookmark')
-
-    if (appStore.config.bookmark!.list.some(item => item.url === currentUrl.value)) {
-      createNotification({ body: '该页面已被保存' })
-      return
-    }
-
     if (isSimpleMode.value)
       await handleCommand('toggle')
     showInput.value = true
@@ -57,9 +48,11 @@ async function handleCommand(command: string) {
 }
 
 async function addBookmark() {
+  const url = await window.electron.ipcRenderer.invoke('add-bookmark')
   appStore.config.bookmark!.list.push({
+    id: useNanoid(),
     name: newBookmarkName.value.trim() ? newBookmarkName.value.trim() : '未命名',
-    url: currentUrl.value,
+    url,
     icon: 'carbon:bookmark-filled',
     color: '#FAFAFA',
   })

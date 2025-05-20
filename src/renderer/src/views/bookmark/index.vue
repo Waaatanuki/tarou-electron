@@ -3,13 +3,72 @@ import conf from '@renderer/conf'
 
 const appStore = useAppStore()
 const { height } = useWindowSize()
+const { open, reset, onChange } = useFileDialog({ accept: '.json' })
 
 watch(() => appStore.config.bookmark?.list, async (val) => {
   await conf.set('bookmark.list', toRaw(val))
 }, { deep: true })
 
-function deleteMark(idx: number) {
-  appStore.config.bookmark?.list.splice(idx, 1)
+function deleteMark(id: string) {
+  const index = appStore.config.bookmark?.list.findIndex(item => item.id === id)
+  if (index !== undefined && index !== -1)
+    appStore.config.bookmark?.list.splice(index, 1)
+}
+
+function exportBookmarks() {
+  const data = appStore.config.bookmark?.list.map(({ id, ...rest }) => rest) || []
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `bookmarks_${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function importBookmarks() {
+  reset()
+  open()
+}
+
+onChange(async (files) => {
+  if (!files)
+    return
+
+  try {
+    for (let index = 0; index < files.length; index++) {
+      const file = files[index]
+      if (file.type !== 'application/json')
+        continue
+      const data = await loadFile(file)
+
+      for (const item of data) {
+        if (item.name && item.url && item.icon && item.color) {
+          appStore.config.bookmark!.list.push({
+            id: useNanoid(),
+            name: item.name,
+            url: item.url,
+            icon: item.icon,
+            color: item.color,
+          })
+        }
+      }
+    }
+    createNotification({ body: `导入成功` })
+  }
+  catch (error) {
+    ElMessage.error(String(error))
+  }
+})
+
+function loadFile(file: File) {
+  return new Promise<any[]>((resolve) => {
+    const reader = new FileReader()
+    reader.onload = function () {
+      resolve(JSON.parse(reader.result as string))
+    }
+    reader.readAsText(file)
+  })
 }
 </script>
 
@@ -21,10 +80,10 @@ function deleteMark(idx: number) {
         <span>书签管理</span>
       </div>
       <div>
-        <TheButton icon="carbon:document-export">
+        <TheButton icon="carbon:document-export" @click="exportBookmarks">
           导出
         </TheButton>
-        <TheButton icon="carbon:document-import">
+        <TheButton icon="carbon:document-import" @click="importBookmarks">
           导入
         </TheButton>
       </div>
@@ -33,7 +92,7 @@ function deleteMark(idx: number) {
       <el-scrollbar :max-height="height - 80">
         <div m-auto w-90 flex flex-col gap-2>
           <el-card
-            v-for="mark, idx in appStore.config.bookmark?.list || []" :key="idx"
+            v-for="mark in appStore.config.bookmark?.list || []" :key="mark.id"
             body-style="padding: 10px 10px 0 10px;"
           >
             <el-form size="small">
@@ -47,7 +106,7 @@ function deleteMark(idx: number) {
                   </el-form-item>
                 </div>
                 <el-form-item>
-                  <TheButton icon="carbon:trash-can" @click="deleteMark(idx)" />
+                  <TheButton icon="carbon:trash-can" @click="deleteMark(mark.id)" />
                 </el-form-item>
               </div>
               <el-form-item label="图标">
