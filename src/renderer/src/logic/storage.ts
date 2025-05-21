@@ -1,2 +1,3 @@
-export const name = useStorage('name', 'tom')
-export const count = useStorage('count', 0)
+// User
+export const code = useStorage<string>('code', '')
+export const uid = useStorage<string>('uid', '')
