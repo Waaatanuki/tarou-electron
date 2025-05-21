@@ -2,6 +2,7 @@
   "name": "tarou",
   "version": "1.0.0",
   "description": "granblue app",
+  "author": "Waaatanuki",
   "main": "./out/main/index.js",
   "scripts": {
     "lint": "eslint --cache .",
