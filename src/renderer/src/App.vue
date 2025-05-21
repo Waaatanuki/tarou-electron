@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
 import conf from './conf'
 import ViewPanel from './views/index.vue'
 
-const appStore = useAppStore()
 const loading = ref(true)
+const appStore = useAppStore()
+const userStore = useUserStore()
 
 onMounted(async () => {
   if (!isDark.value)
     toggleDark()
+
+  if (!uuidValidate(userStore.code))
+    userStore.code = uuidv4()
 
   appStore.config.webContentsView = await conf.get('webContentsView') as any
   appStore.config.bookmark = await conf.get('bookmark') as any

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
+  const code = useStorage('code', '')
   const token = useStorage('token', '')
 
   function logout() {
@@ -8,6 +9,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
+    code,
     token,
     logout,
   }
