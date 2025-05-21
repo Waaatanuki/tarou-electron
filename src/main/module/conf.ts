@@ -18,6 +18,10 @@ const DEFAULT_CONFIG: Config = {
     simpleMode: false,
     list: [],
   },
+  proxy: {
+    mode: 'direct',
+    preset: 'direct',
+  },
 }
 
 let confInstance: Conf<Config> | null = null

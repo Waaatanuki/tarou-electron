@@ -12,6 +12,7 @@ onMounted(async () => {
 
   appStore.config.webContentsView = await conf.get('webContentsView') as any
   appStore.config.bookmark = await conf.get('bookmark') as any
+  appStore.config.proxy = await conf.get('proxy') as any
   loading.value = false
 
   window.electron.ipcRenderer.on('window-resized', (event, { width, height }) => {

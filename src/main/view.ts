@@ -1,12 +1,18 @@
 import type { BrowserWindow } from 'electron'
 import { ipcMain, Menu, MenuItem, shell, WebContentsView } from 'electron'
-import { getConf } from './conf'
+import { getConf } from './module/conf'
+import { setupProxy } from './module/proxy'
 
 export function createWebView(mainWindow: BrowserWindow) {
   const conf = getConf()
   const webContentsViewConfig = conf.get('webContentsView')
+  const proxyConfig = conf.get('proxy')
 
   const view = new WebContentsView()
+  const session = view.webContents.session
+
+  setupProxy(session, proxyConfig)
+
   mainWindow.contentView.addChildView(view)
 
   const mobileUserAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'
@@ -51,6 +57,10 @@ export function createWebView(mainWindow: BrowserWindow) {
     conf.set('browserWindow', { width: windowBbounds.width, height: windowBbounds.height })
     conf.set('webContentsView.bounds.height', contentHeight)
     mainWindow.webContents.send('window-resized', { width: bounds.width, height: contentHeight })
+  })
+
+  ipcMain.on('set-proxy', (event, proxyConfig) => {
+    setupProxy(session, proxyConfig)
   })
 
   ipcMain.on('open-external', (event, url) => {

@@ -68,12 +68,8 @@ function loadFile(file: File) {
 </script>
 
 <template>
-  <div p-2>
-    <div view-title>
-      <div fc gap-1>
-        <Icon icon="material-symbols:bookmark-star-sharp" />
-        <span>书签管理</span>
-      </div>
+  <div>
+    <TheTitle title="书签管理" icon="material-symbols:bookmark-star-sharp">
       <div>
         <TheButton icon="carbon:document-export" @click="exportBookmarks">
           导出
@@ -82,7 +78,7 @@ function loadFile(file: File) {
           导入
         </TheButton>
       </div>
-    </div>
+    </TheTitle>
     <div>
       <el-scrollbar :max-height="height - 80">
         <div m-auto w-90 flex flex-col gap-2>

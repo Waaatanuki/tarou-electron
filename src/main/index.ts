@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
-import { getConf, initConf } from './conf'
+import { getConf, initConf } from './module/conf'
 import { createWebView } from './view'
 
 function createWindow(): void {

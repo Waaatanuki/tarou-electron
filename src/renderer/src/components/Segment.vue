@@ -4,6 +4,7 @@ const appStore = useAppStore()
 const viewList: { key: string, icon: string }[] = [
   { key: 'Dashborad', icon: 'material-symbols:dashboard' },
   { key: 'BookmarkSetting', icon: 'material-symbols:bookmark-star-sharp' },
+  { key: 'Setting', icon: 'carbon:settings' },
 ]
 
 const segmentedProps = {
