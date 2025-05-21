@@ -26,7 +26,7 @@ const onDrag = useThrottleFn((e: MouseEvent) => {
     const MIN_WIDTH = 150
     const MAX_WIDTH = 800
 
-    const _clientX = e.clientX - (appStore.config.bookmark!.simpleMode ? 50 : 100)
+    const _clientX = e.clientX - (appStore.config.bookmark!.simpleMode ? 30 : 100)
     const newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, _clientX))
     appStore.config.webContentsView!.bounds.width = newWidth
   }
