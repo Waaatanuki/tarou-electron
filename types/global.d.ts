@@ -36,4 +36,45 @@ declare module 'tarou' {
     pacScript?: string
     proxyRules?: string
   }
+
+  interface NetworkTransaction {
+    url: string
+    params: any
+    postData?: any
+    responseBody?: any
+  }
+
+}
+
+declare module 'protocal'{
+  interface NetworkRequestWillBeSentParams {
+    documentURL: string
+    frameId: string
+    hasUserGesture: boolean
+    initiator: Initiator
+    loaderId: string
+    redirectHasExtraInfo: boolean
+    request: Request
+    requestId: string
+    timestamp: number
+    type: string
+    wallTime: number
+  }
+
+  interface Initiator {
+    stack: any[]
+    type: string
+  }
+
+  interface Request {
+    headers: any[]
+    initialPriority: string
+    isSameSite: boolean
+    method: string
+    mixedContentType: string
+    referrerPolicy: string
+    url: string
+    hasPostData?: boolean
+    postData?: string
+  }
 }
