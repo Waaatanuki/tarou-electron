@@ -5,6 +5,7 @@ import type { NetworkTransaction } from 'tarou'
 const ignoreExt = ['css', 'mp3']
 const targetUrl = ['gbf.game.mbga.jp']
 
+let currentUrl = ''
 const targetPage = [
   { url: '/#mypage', selector: '#status-accordion-wrapper' },
 ]
@@ -18,19 +19,26 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
     console.log('Debugger detached due to : ', reason)
   })
 
-  view.webContents.on('did-navigate-in-page', async () => {
-    console.log('================did-navigate-in-page=====================')
+  view.webContents.on('did-navigate', handlePageNavigation)
+  view.webContents.on('did-navigate-in-page', handlePageNavigation)
 
+  async function handlePageNavigation() {
     const url: string = await view.webContents.executeJavaScript('document.URL')
+
+    if (url === currentUrl)
+      return
+
+    currentUrl = url
     const hitPage = targetPage.find(page => url.includes(page.url))
 
     if (hitPage) {
       const outerHTML = await getHtmlString(hitPage)
+      currentUrl = ''
       if (outerHTML) {
         mainWindow.webContents.send('network-HTML', { url, outerHTML })
       }
     }
-  })
+  }
 
   async function getHtmlString(page: { url: string, selector: string }) {
     return new Promise<string>((resolve) => {
