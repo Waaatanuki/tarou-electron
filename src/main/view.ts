@@ -73,6 +73,11 @@ export function createWebView(mainWindow: BrowserWindow) {
     conf.set('webContentsView.bounds', bounds)
   })
 
+  ipcMain.on('logout', async (event) => {
+    await session.clearStorageData()
+    view.webContents.reload()
+  })
+
   ipcMain.on('resize-webcontents', (event, width) => {
     bounds.width = width
     setViewSize(view, bounds)

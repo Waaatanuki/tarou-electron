@@ -15,6 +15,7 @@ const fixButton = computed(() => [
   { name: '新增', command: 'add', icon: 'ph:star-thin' },
   { name: isSimpleMode.value ? '展开' : '折叠', command: 'toggle', icon: isSimpleMode.value ? 'tabler:layout-sidebar-left-expand-filled' : 'tabler:layout-sidebar-left-collapse-filled' },
   { name: '设置', command: 'set', icon: 'material-symbols:bookmark-star-sharp' },
+  { name: '游戏登出', command: 'logout', icon: 'carbon:logout' },
 ])
 
 watch(() => appStore.config.bookmark?.list, async () => {
@@ -52,6 +53,9 @@ async function handleCommand(command: string) {
   }
   if (command === 'set') {
     appStore.currentView = 'BookmarkSetting'
+  }
+  if (command === 'logout') {
+    window.electron.ipcRenderer.send('logout')
   }
 }
 
