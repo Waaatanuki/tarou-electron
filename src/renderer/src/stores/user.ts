@@ -1,17 +1,18 @@
+import type { UserStatus } from 'dashboard'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
   const code = useStorage('code', '')
   const token = useStorage('token', '')
-  const uid = useStorage('uid', '')
+  const userStatus = useStorage<Partial<UserStatus>>('userStatus', {})
   function logout() {
     token.value = ''
   }
 
   return {
-    uid,
     code,
     token,
+    userStatus,
     logout,
   }
 })

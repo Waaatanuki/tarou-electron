@@ -59,13 +59,16 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
             return
           }
 
-          const outerHTML = await view.webContents.executeJavaScript(
+          const targetHTML = await view.webContents.executeJavaScript(
             `document.querySelector('${page.selector}')?.outerHTML`,
           )
 
-          if (outerHTML) {
+          if (targetHTML) {
             cleanup()
-            resolve(outerHTML)
+            const contentHTML = await view.webContents.executeJavaScript(
+              `document.querySelector('.contents')?.outerHTML`,
+            )
+            resolve(contentHTML)
           }
         }
         catch (error) { }
