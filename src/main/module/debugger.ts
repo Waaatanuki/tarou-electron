@@ -25,6 +25,11 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
   async function handlePageNavigation() {
     const url: string = await view.webContents.executeJavaScript('document.URL')
 
+    if (url.includes('?opensocial_viewer_id')) {
+      view.webContents.loadURL('https://gbf.game.mbga.jp')
+      return
+    }
+
     if (url === currentUrl)
       return
 

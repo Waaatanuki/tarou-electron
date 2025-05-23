@@ -73,7 +73,7 @@ export function createWebView(mainWindow: BrowserWindow) {
     conf.set('webContentsView.bounds', bounds)
   })
 
-  ipcMain.on('logout', async (event) => {
+  ipcMain.on('logout', async () => {
     await session.clearStorageData()
     view.webContents.reload()
   })

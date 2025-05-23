@@ -13,6 +13,7 @@ onMounted(async () => {
   if (!isDark.value)
     toggleDark()
 
+  // TODO 登出时会清空
   if (!uuidValidate(userStore.code))
     userStore.code = uuidv4()
 
