@@ -7,7 +7,7 @@ import ViewPanel from './views/index.vue'
 const loading = ref(true)
 const appStore = useAppStore()
 const userStore = useUserStore()
-const { handleTransaction } = useTransactionService()
+const { handleTransaction, handleHTML } = useTransactionService()
 
 onMounted(async () => {
   if (!isDark.value)
@@ -28,6 +28,10 @@ onMounted(async () => {
 
   window.electron.ipcRenderer.on('network-transaction', (event, transaction) => {
     handleTransaction(transaction)
+  })
+
+  window.electron.ipcRenderer.on('network-HTML', (event, html) => {
+    handleHTML(html)
   })
 })
 </script>

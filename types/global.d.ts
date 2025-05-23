@@ -42,6 +42,11 @@ declare module 'tarou' {
     postData?: any
     responseBody?: any
   }
+
+  interface NetworkHTML {
+    url: string
+    outerHTML: string
+  }
 }
 
 declare module 'protocal'{

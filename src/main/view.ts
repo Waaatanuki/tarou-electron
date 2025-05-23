@@ -101,10 +101,6 @@ export function createWebView(mainWindow: BrowserWindow) {
     menu.popup()
   })
 
-  view.webContents.on('did-finish-load', () => {
-    console.log('================did-finish-load=====================')
-  })
-
   return view
 }
 

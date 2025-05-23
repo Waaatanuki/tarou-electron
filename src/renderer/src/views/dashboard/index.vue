@@ -2,7 +2,7 @@
 import { getDoc } from '@renderer/api/doc'
 
 const daata = ref()
-
+const userStore = useUserStore()
 async function foo() {
   daata.value = await getDoc('schedule')
 }
@@ -14,7 +14,7 @@ async function foo() {
     <TheButton @click="foo">
       测试
     </TheButton>
-    {{ daata }}
+    {{ userStore.uid }}
     <div i-carbon-sun dark:i-carbon-moon text-10 icon-btn @click="toggleDark()" />
   </div>
 </template>

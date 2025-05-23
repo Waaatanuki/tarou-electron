@@ -5,6 +5,10 @@ import type { NetworkTransaction } from 'tarou'
 const ignoreExt = ['css', 'mp3']
 const targetUrl = ['gbf.game.mbga.jp']
 
+const targetPage = [
+  { url: '/#mypage', selector: '#status-accordion-wrapper' },
+]
+
 export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) {
   const transactions = new Map<string, NetworkTransaction>()
 
@@ -13,6 +17,53 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
   view.webContents.debugger.on('detach', (event, reason) => {
     console.log('Debugger detached due to : ', reason)
   })
+
+  view.webContents.on('did-navigate-in-page', async () => {
+    console.log('================did-navigate-in-page=====================')
+
+    const url: string = await view.webContents.executeJavaScript('document.URL')
+    const hitPage = targetPage.find(page => url.includes(page.url))
+
+    if (hitPage) {
+      const outerHTML = await getHtmlString(hitPage)
+      if (outerHTML) {
+        mainWindow.webContents.send('network-HTML', { url, outerHTML })
+      }
+    }
+  })
+
+  async function getHtmlString(page: { url: string, selector: string }) {
+    return new Promise<string>((resolve) => {
+      let intervalId: NodeJS.Timeout
+
+      const cleanup = () => {
+        if (intervalId)
+          clearInterval(intervalId)
+      }
+
+      intervalId = setInterval(async () => {
+        try {
+          const url: string = await view.webContents.executeJavaScript('document.URL')
+
+          if (!url.includes(page.url)) {
+            cleanup()
+            resolve('')
+            return
+          }
+
+          const outerHTML = await view.webContents.executeJavaScript(
+            `document.querySelector('${page.selector}')?.outerHTML`,
+          )
+
+          if (outerHTML) {
+            cleanup()
+            resolve(outerHTML)
+          }
+        }
+        catch (error) { }
+      }, 200)
+    })
+  }
 
   async function getResponseBody(requestId: string) {
     return new Promise((resolve, reject) => {
@@ -51,9 +102,7 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
           count++
           resp = await view.webContents.debugger.sendCommand('Network.getResponseBody', { requestId })
         }
-        catch (error) {
-          console.log('Network.getResponseBody报错')
-        }
+        catch (error) { }
       }, 100)
     })
   }
@@ -67,9 +116,7 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
         try {
           postData = JSON.parse(request.postData)
         }
-        catch (error) {
-          console.log({ msg: 'JSON.parse(request.postData)报错', error, url: request.url, postData: request.postData })
-        }
+        catch (error) { }
       }
 
       transactions.set(requestId, {
