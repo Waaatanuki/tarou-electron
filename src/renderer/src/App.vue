@@ -39,7 +39,7 @@ onMounted(async () => {
 <template>
   <el-config-provider :locale="zhCn">
     <div v-if="!loading" h-vh w-vw flex>
-      <MarkBar shrink-0 />
+      <ToolBar shrink-0 />
       <GameView shrink-0 />
       <ResizeBar shrink-0 />
       <ViewPanel />
