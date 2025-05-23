@@ -7,7 +7,7 @@ import ViewPanel from './views/index.vue'
 const loading = ref(true)
 const appStore = useAppStore()
 const userStore = useUserStore()
-const { handleTransaction, handleHTML } = useTransactionService()
+const { handleTransaction, handleHTML } = useNetworkService()
 
 onMounted(async () => {
   if (!isDark.value)

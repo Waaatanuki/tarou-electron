@@ -1,7 +1,7 @@
 import type { NetworkHTML, NetworkTransaction } from 'tarou'
 import { load } from 'cheerio'
 
-export function useTransactionService() {
+export function useNetworkService() {
   const userStore = useUserStore()
 
   function handleTransaction(transaction: NetworkTransaction) {
