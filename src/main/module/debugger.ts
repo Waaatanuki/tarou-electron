@@ -9,6 +9,7 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
   const transactions = new Map<string, NetworkTransaction>()
 
   view.webContents.debugger.attach('1.3')
+  view.webContents.debugger.sendCommand('Network.enable')
   view.webContents.debugger.on('detach', (event, reason) => {
     console.log('Debugger detached due to : ', reason)
   })
@@ -73,7 +74,6 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
 
       transactions.set(requestId, {
         url: request.url,
-        params,
         postData,
         responseBody: null,
       })
@@ -87,18 +87,15 @@ export function setupDebugger(mainWindow: BrowserWindow, view: WebContentsView) 
 
       getResponseBody(requestId).then((body) => {
         transaction.responseBody = body
-        console.log(transaction)
-
-        // mainWindow.webContents.send('network-response', transaction)
+        mainWindow.webContents.send('network-transaction', transaction)
+        transactions.delete(requestId)
       })
     }
 
     if (method === 'Network.webSocketFrameReceived') {
-      console.log(123)
+      console.log('Network.webSocketFrameReceived')
     }
   })
-
-  view.webContents.debugger.sendCommand('Network.enable')
 }
 
 function isIgnoredRequest(params: NetworkRequestWillBeSentParams) {

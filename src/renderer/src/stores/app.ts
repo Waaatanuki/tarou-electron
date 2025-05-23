@@ -10,3 +10,6 @@ export const useAppStore = defineStore('app', () => {
     currentView,
   }
 })
+
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useAppStore, import.meta.hot))

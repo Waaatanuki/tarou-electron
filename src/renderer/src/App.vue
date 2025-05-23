@@ -7,6 +7,7 @@ import ViewPanel from './views/index.vue'
 const loading = ref(true)
 const appStore = useAppStore()
 const userStore = useUserStore()
+const { handleTransaction } = useTransactionService()
 
 onMounted(async () => {
   if (!isDark.value)
@@ -23,6 +24,10 @@ onMounted(async () => {
   window.electron.ipcRenderer.on('window-resized', (event, { width, height }) => {
     appStore.config.webContentsView!.bounds.width = width
     appStore.config.webContentsView!.bounds.height = height
+  })
+
+  window.electron.ipcRenderer.on('network-transaction', (event, transaction) => {
+    handleTransaction(transaction)
   })
 })
 </script>

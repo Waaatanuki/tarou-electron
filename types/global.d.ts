@@ -39,11 +39,9 @@ declare module 'tarou' {
 
   interface NetworkTransaction {
     url: string
-    params: any
     postData?: any
     responseBody?: any
   }
-
 }
 
 declare module 'protocal'{
