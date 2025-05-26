@@ -13,7 +13,9 @@ defineProps<{ value?: NumberLimitPair }>()
       {{ `/${value.limit}` }}
     </span>
   </span>
-  <span v-else />
+  <span v-else>
+    0/0
+  </span>
 </template>
 
 <style scoped>
