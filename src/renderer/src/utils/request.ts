@@ -1,6 +1,6 @@
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
-
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
 // 创建 axios 实例
 const service = axios.create({
   timeout: 50000,
@@ -14,13 +14,13 @@ service.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       'Expected \'config\' and \'config.headers\' not to be undefined',
     )
   }
+  const userStore = useUserStore()
+  if (!uuidValidate(userStore.code))
+    userStore.code = uuidv4()
 
   if (config.url?.startsWith('/admin')) {
     config.baseURL = import.meta.env.VITE_APP_GM_API
     config.url = config.url.replace(new RegExp('^' + '/admin'), '')
-
-    const userStore = useUserStore()
-
     config.headers.Authorization = userStore.token ? `Bearer ${userStore.token}` : undefined
   }
   else if (config.url?.startsWith('/gh')) {
